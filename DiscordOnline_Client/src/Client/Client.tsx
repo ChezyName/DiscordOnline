@@ -13,7 +13,7 @@ class ClientHandler {
         this.socket = io("http://"+ IP +":7777");
         this.socket.emit("name",NAME);
         this.socket.on('con',() => { this.connected = true; });
-        this.Interval = setInterval(this.sendMicrophoneInput.bind(this),50);
+        this.Interval = setInterval(this.sendMicrophoneInput.bind(this),250);
         this.socket.on('audio',(buffer:any) => {this.playWebAudio(buffer)});
     }
 
