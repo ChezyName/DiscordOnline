@@ -2,9 +2,10 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
-const {SocketHandler} = require('./socketHandler');
+import { Socket } from 'socket.io';
+import SocketHandler from './socketHandler';
 
-const Users = [];
+const Users:SocketHandler[] = [];
 const publicPath = path.join(__dirname, '/../public');
 const port = process.env.PORT || 7777;
 
@@ -24,9 +25,9 @@ server.listen(port, ()=> {
 });
 
 
-io.on('connection', (socket) => {
-    function OnDiscconnect(client){
-        console.log(client.username + " Has Disconnected!");
+io.on('connection', (socket:Socket) => {
+    function OnDiscconnect(client:SocketHandler){
+        console.log("User:" + client.username + " Has Disconnected!");
         let i =Users.indexOf(client)
         if(i > -1){
             Users.splice(i,1);
@@ -34,7 +35,7 @@ io.on('connection', (socket) => {
     }
 
     socket.on("name", (name) => {
-        let client = new SocketHandler(socket,name,OnDiscconnect);
+        let client:SocketHandler = new SocketHandler(socket,name,OnDiscconnect);
         Users.push(client);
     });
 });

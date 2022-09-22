@@ -1,5 +1,10 @@
-class SocketHandler {
-    constructor(Socket,Username,OnDiscconnect){
+import { Socket } from "socket.io";
+
+export default class SocketHandler {
+    username:string;
+    socket:Socket;
+
+    constructor(Socket:Socket,Username:string,OnDiscconnect:any){
         console.log("User: " + Username + " Has Connected!")
         this.username = Username;
         this.socket = Socket;
@@ -7,5 +12,3 @@ class SocketHandler {
         this.socket.on('disconnect',() => {OnDiscconnect(this)});
     }
 }
-
-module.exports = {SocketHandler};
