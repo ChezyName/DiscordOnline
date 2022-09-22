@@ -3,12 +3,21 @@ import { Socket } from "socket.io";
 export default class SocketHandler {
     username:string;
     socket:Socket;
+    currentAudioStream:any;
+    Interval:any;
+    others:SocketHandler[];
 
-    constructor(Socket:Socket,Username:string,OnDiscconnect:any){
+    constructor(Socket:Socket,Username:string,OnDiscconnect:any,otherUsers:SocketHandler[]){
         console.log("User: " + Username + " Has Connected!")
         this.username = Username;
         this.socket = Socket;
 
+        this.socket.emit("con");
         this.socket.on('disconnect',() => {OnDiscconnect(this)});
+        this.socket.on('audio',(stream) => {
+            this.currentAudioStream = stream
+            this.socket.broadcast.emit('audio',this.currentAudioStream);
+        });
+        this.others = otherUsers;
     }
 }

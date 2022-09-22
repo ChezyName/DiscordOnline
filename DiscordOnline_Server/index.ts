@@ -27,15 +27,15 @@ server.listen(port, ()=> {
 
 io.on('connection', (socket:Socket) => {
     function OnDiscconnect(client:SocketHandler){
-        console.log("User:" + client.username + " Has Disconnected!");
-        let i =Users.indexOf(client)
+        console.log("User: " + client.username + " Has Disconnected!");
+        let i = Users.indexOf(client)
         if(i > -1){
             Users.splice(i,1);
         }
     }
 
     socket.on("name", (name) => {
-        let client:SocketHandler = new SocketHandler(socket,name,OnDiscconnect);
+        let client:SocketHandler = new SocketHandler(socket,name,OnDiscconnect,Users);
         Users.push(client);
     });
 });
