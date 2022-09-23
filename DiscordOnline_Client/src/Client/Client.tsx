@@ -9,20 +9,21 @@ class ClientHandler {
     socket:Socket;
     connected:boolean = false;
     Interval:number;
+    audio:any;
     constructor(IP:string,NAME:String){
         this.socket = io("http://"+ IP +":7777");
         this.socket.emit("name",NAME);
         this.socket.on('con',() => { this.connected = true; });
         this.Interval = setInterval(this.sendMicrophoneInput.bind(this),250);
         this.socket.on('audio',(buffer:any) => {this.playWebAudio(buffer)});
+        this.audio = document.createElement('audio');
     }
 
     playWebAudio(arrayBuffer:any){
         //console.log(arrayBuffer);
         var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
-        var audio = document.createElement('audio');
-        audio.src = window.URL.createObjectURL(blob);
-        audio.play();
+        this.audio.src = window.URL.createObjectURL(blob);
+        this.audio.play();
     }
 
     async sendMicrophoneInput(){
@@ -33,7 +34,7 @@ class ClientHandler {
             stream = await navigator.mediaDevices.getUserMedia({audio: true});
             let recorder = new MediaRecorder(stream);
             if(recorder.state === "recording"){
-                recorder.stop();
+                setTimeout(() => {recorder.stop();},500);
             }
             else{
                 recorder.start(500);
