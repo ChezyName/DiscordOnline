@@ -11,7 +11,7 @@ class ClientHandler {
     Interval:number;
     audio:any;
     constructor(IP:string,NAME:String){
-        this.socket = io("http://"+ IP +":7777");
+        this.socket = io("ws://"+ IP +":7777");
         this.socket.emit("name",NAME);
         this.socket.on('con',() => { this.connected = true; });
         this.Interval = setInterval(this.sendMicrophoneInput.bind(this),250);
@@ -21,32 +21,55 @@ class ClientHandler {
 
     playWebAudio(arrayBuffer:any){
         //console.log(arrayBuffer);
-        var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
-        this.audio.src = window.URL.createObjectURL(blob);
-        this.audio.play();
+        //var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
+        //console.log(arrayBuffer);
+        let a = new Audio(arrayBuffer);
+        a.play();
     }
 
     async sendMicrophoneInput(){
         if(!this.socket) return;
 
-        let stream = null;
+        let time = 1000;
+        let socket = this.socket;
         try {
-            stream = await navigator.mediaDevices.getUserMedia({audio: true});
-            let recorder = new MediaRecorder(stream);
-            if(recorder.state === "recording"){
-                setTimeout(() => {recorder.stop();},500);
-            }
-            else{
-                recorder.start(500);
-                recorder.addEventListener('dataavailable', (async event => {
-                    if (typeof event.data === 'undefined') return;
-                    if (event.data.size === 0) return;   
-                    let c = [event.data];
-                    event.data.arrayBuffer().then(buffer => {
-                        this.socket.emit('audio',new Blob(c, { 'type' : 'audio/ogg; codecs=opus' }));
-                    });  
-                }));
-            }
+            navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+                var madiaRecorder = new MediaRecorder(stream);
+                madiaRecorder.start();
+            
+                var audioChunks:any[] = [];
+            
+                madiaRecorder.addEventListener("dataavailable", function (event) {
+                  audioChunks.push(event.data);
+                });
+            
+                madiaRecorder.addEventListener("stop", function () {
+                  var audioBlob = new Blob(audioChunks);
+            
+                  audioChunks = [];
+            
+                  var fileReader = new FileReader();
+                  fileReader.readAsDataURL(audioBlob);
+                  fileReader.onloadend = function () {
+                    //if (!userStatus.microphone || !userStatus.online) return;
+            
+                    var base64String = fileReader.result;
+                    socket.emit("audio", base64String);
+            
+                  };
+            
+                  madiaRecorder.start();
+            
+            
+                  setTimeout(function () {
+                    madiaRecorder.stop();
+                  }, time);
+                });
+            
+                setTimeout(function () {
+                  madiaRecorder.stop();
+                }, time);
+              });
 
             /*
             this.socket.emit("audio",stream);

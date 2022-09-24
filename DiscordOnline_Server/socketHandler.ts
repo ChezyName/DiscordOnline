@@ -15,8 +15,10 @@ export default class SocketHandler {
         this.socket.emit("con");
         this.socket.on('disconnect',() => {OnDiscconnect(this)});
         this.socket.on('audio',(stream) => {
-            this.currentAudioStream = stream
-            this.socket.broadcast.emit('audio',this.currentAudioStream);
+            var newData = stream.split(";");
+            newData[0] = "data:audio/ogg;";
+            newData = newData[0] + newData[1];
+            this.socket.emit('audio',newData);
         });
         this.others = otherUsers;
     }
