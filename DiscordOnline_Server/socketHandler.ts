@@ -18,7 +18,7 @@ export default class SocketHandler {
             var newData = stream.split(";");
             newData[0] = "data:audio/ogg;";
             newData = newData[0] + newData[1];
-            this.socket.emit('audio',newData);
+            this.socket.broadcast.emit('audio',newData);
         });
         this.others = otherUsers;
     }
