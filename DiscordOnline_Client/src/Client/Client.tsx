@@ -11,7 +11,7 @@ class ClientHandler {
     Interval:number;
     audio:any;
     constructor(IP:string,NAME:String){
-        this.socket = io("ws://"+ IP +":7777");
+        this.socket = io("https://"+ IP +":7777");
         this.socket.emit("name",NAME);
         this.socket.on('con',() => { this.connected = true; });
         this.Interval = setInterval(this.sendMicrophoneInput.bind(this),250);
